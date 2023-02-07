@@ -14,10 +14,10 @@ namespace SpellSlayer.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetSpell")]
-        public IActionResult Get()
+        [HttpGet("{spellName}/{level}")]
+        public IActionResult Get([FromRoute] string spellName, [FromRoute] int level)
         {
-            return Ok(new Spell() { Name = "Fireball" });
+            return Ok(new Spell() { Name = spellName, Description = $"{level}" });
         }
     }
 }
