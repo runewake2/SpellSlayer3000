@@ -15,9 +15,9 @@ namespace SpellSlayer.WebApi.Controllers
         }
 
         [HttpGet("{spellName}/{level}")]
-        public IActionResult Get([FromRoute] string spellName, [FromRoute] int level)
+        public ActionResult<Spell> Get([FromRoute] string spellName, [FromRoute] int level)
         {
-            return Ok(new Spell() { Name = spellName, Description = $"{level}" });
+            return new Spell() { Name = spellName, Description = $"{level}" };
         }
     }
 }

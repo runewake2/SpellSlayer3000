@@ -18,7 +18,7 @@ namespace SpellSlayer.WebApi.Controllers
         }
 
         [HttpPost(Name = "RollDice")]
-        public IActionResult Post([FromQuery]string dice)
+        public ActionResult<DiceRoll> Post([FromQuery]string dice)
         {
             if (!Regex.IsMatch(dice, regex))
             {
