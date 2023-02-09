@@ -9,7 +9,6 @@ namespace SpellSlayer.WebApi.Controllers
     public class DiceController : ControllerBase
     {
         private static readonly Random random = new Random();
-        private const string regex = @"\d+d\d+"; // Matches "#d#" format
         private readonly ILogger<DiceController> _logger;
 
         public DiceController(ILogger<DiceController> logger)
@@ -20,20 +19,20 @@ namespace SpellSlayer.WebApi.Controllers
         [HttpPost(Name = "RollDice")]
         public ActionResult<DiceRoll> Post([FromQuery]string dice)
         {
-            if (!Regex.IsMatch(dice, regex))
+            SpellDamage damage;
+            try
             {
-                return BadRequest("Dice pool was incorrectly formatted. Expects: #d#, ex 3d10");
+                damage = DiceParser.Parse(dice);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-            var splitPool = dice.Split("d");
-            if (splitPool.Length != 2 ) {
-                return BadRequest("Dice pool was incorrectly formatted. Expects: #d#, ex 3d10");
-            }
-            var (count, dimension) = (int.Parse(splitPool[0]), int.Parse(splitPool[1]));
+
             List<int> diceResults = new();
-            for(int i = 0; i < count; ++i)
+            for(int i = 0; i < damage.DiceCount; ++i)
             {
                 // Random selects between 0 (inclusive) and the max value (exclusive). Add 1 to behave like dice.
-                diceResults.Add(random.Next(dimension) + 1);
+                diceResults.Add(random.Next(damage.DiceSize) + 1);
             }
             return Ok(new DiceRoll()
             {

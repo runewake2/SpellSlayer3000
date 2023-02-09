@@ -15,9 +15,16 @@ namespace SpellSlayer.WebApi.Controllers
         }
 
         [HttpGet("{spellName}/{level}")]
-        public ActionResult<Spell> Get([FromRoute] string spellName, [FromRoute] int level)
+        public async Task<ActionResult<Spell>> Get([FromRoute] string spellName, [FromRoute] int level)
         {
-            return new Spell() { Name = spellName, Description = $"{level}" };
+            HttpClient client = new()
+            {
+                BaseAddress = new Uri("https://www.dnd5eapi.co/api/"),
+            };
+            var result = await client.GetAsync($"spells/{spellName}");
+            var parsed = await result.Content.ReadFromJsonAsync<DndSpellObject>();
+            var damage = DiceParser.Parse(parsed?.damage.damage_at_slot_level[level] ?? "");
+            return new Spell() { Name = spellName, Description = parsed.desc[0], Damage = damage };
         }
     }
 }
